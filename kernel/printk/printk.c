@@ -66,6 +66,7 @@
 static const char *filter_strings[] = {
 	"[mi_disp",
 	"[drm",
+	"healthd:",
 };
 
 int console_printk[4] = {
