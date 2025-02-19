@@ -252,6 +252,7 @@ int brl_resume(struct goodix_ts_core *cd)
 int brl_gesture(struct goodix_ts_core *cd, int gesture_type)
 {
 	struct goodix_ts_cmd cmd;
+	int ret = 0;
 
 	cmd.cmd = GOODIX_GESTURE_CMD;
 	cmd.len = 6;
@@ -272,10 +273,12 @@ int brl_gesture(struct goodix_ts_core *cd, int gesture_type)
 	}
 	ts_info("BRL cmd 0 is 0x%x", cmd.data[0]);
 	ts_info("BRL cmd 1 is 0x%x", cmd.data[1]);
-	if (cd->hw_ops->send_cmd(cd, &cmd))
+
+	ret = cd->hw_ops->send_cmd(cd, &cmd);
+	if (ret)
 		ts_err("failed send gesture cmd");
 
-	return 0;
+	return ret;
 }
 
 static int brl_dev_confirm(struct goodix_ts_core *cd)
