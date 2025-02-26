@@ -1,5 +1,7 @@
 # Local filesystem mounting			-*- shell-script -*-
 
+mkdir /dev/bsg
+ln -fs /dev/ufs-bsg0 /dev/bsg/
 /bin/qbootctl -s a &>/dev/kmsg
 if [ -e "/scripts/halium-hooks" ]; then
 	# Hook file found
