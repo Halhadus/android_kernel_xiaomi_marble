@@ -62,6 +62,7 @@ jobs:
           cp ../*.deb /out/
           cp ../*.dsc /out/
           cp ../*.tar.xz /out/
+          cp out/KERNEL_OBJ/boot.img
           ls /out
           
       - name: Upload artifacts
