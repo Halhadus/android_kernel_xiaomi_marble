@@ -45,3 +45,4 @@
 +CONFIG_INIT_STACK_ALL_ZERO=y
 +CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem selinux=0 noirqdebug droidian.lvm.prefer console=tty0"
 +CONFIG_PSTORE_RAM_ANNOTATION_APPEND=y
++CONFIG_SCSI_UFS_BSG=y
