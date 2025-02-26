@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build kernel
+name: Build droidian kernel
 
 # Controls when the workflow will run
 on:
@@ -81,7 +81,7 @@ jobs:
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           delete_release: true # default: false
-          tag_name: latest # tag name to delete
+          tag_name: latest-droidian # tag name to delete
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -89,7 +89,7 @@ jobs:
         uses: tvdias/github-tagger@v0.0.1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          tag: latest
+          tag: latest-droidian
 
   publish:
     runs-on: ubuntu-20.04
@@ -107,6 +107,6 @@ jobs:
         uses: softprops/action-gh-release@v2.2.1
         with:
           files: out/linux-kernel/*.*
-          tag_name: latest
+          tag_name: latest-droidian
           draft: false
           prerelease: false
