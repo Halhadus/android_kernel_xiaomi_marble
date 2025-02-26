@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-KERNEL_SOURCES = $(CURDIR)/android_kernel_common
+KERNEL_SOURCES = $(CURDIR)/
 
 include $(CURDIR)/debian/android-kernel-info.mk
 include /usr/share/linux-packaging-snippets/kernel-snippet.mk

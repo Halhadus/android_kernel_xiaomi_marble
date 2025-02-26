@@ -41,7 +41,6 @@
 +CONFIG_SQUASHFS=y
 +CONFIG_SQUASHFS_FILE_DIRECT=y
 +CONFIG_SQUASHFS_DECOMP_MULTI_PERCPU=y
-+CONFIG_NETFILTER_XT_TARGET_CHECKSUM=y
 +CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder,anbox-binder,anbox-hwbinder,anbox-vndbinder"
 +CONFIG_INIT_STACK_ALL_ZERO=y
 +CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem selinux=0 noirqdebug droidian.lvm.prefer console=tty0"
