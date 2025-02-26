@@ -30,7 +30,7 @@ jobs:
       - name: Update & install dependencies
         run: |
           apt update
-          apt install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev  avbtool binutils-aarch64-linux-gnu gcc-4.9-aarch64-linux-android g++-4.9-aarch64-linux-android libgcc-4.9-dev-aarch64-linux-android-cross lz4 -y
+          apt install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev avbtool binutils-aarch64-linux-gnu gcc-4.9-aarch64-linux-android g++-4.9-aarch64-linux-android libgcc-4.9-dev-aarch64-linux-android-cross lz4 linux-packaging-snippets -y
           wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O /clang.tar.gz
           mkdir /clang
           tar -xvf /clang.tar.gz -C /clang
@@ -39,24 +39,35 @@ jobs:
         run: |
           git apply --check --ignore-space-change --ignore-whitespace < ./lxcbuild/lxc_support.diff
           git apply --ignore-space-change --ignore-whitespace < ./lxcbuild/lxc_support.diff
+          git apply --check --ignore-space-change --ignore-whitespace < ./debian/droidian.diff
+          git apply --ignore-space-change --ignore-whitespace < ./debian/droidian.diff
           
+      - name: Install package build dependencies
+        run: |
+          package_info=$(head -n 1 debian/changelog)
+          package_name=$(echo "${package_info}" | awk '{ print $1 }')
+          mk-build-deps --remove --install --tool "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes" debian/control
+          rm -f ${package_name}-build-deps_*.*
+
       - name: Build kernel
         run: |
           export PATH=/clang/bin:/opt/android/prebuilts/python/2.7.5/bin:$PATH
-          make ARCH=arm64 LLVM=1 LLVM_IAS=1 O=out marble_defconfig
-          make ARCH=arm64 LLVM=1 LLVM_IAS=1 O=out -j$(nproc --all)
+          ARGS="--no-lintian -F -d -sa --no-sign --jobs=$(nproc) -aarm64"
+          eval debuild "${ARGS}"
           
       - name: Move kernel to out directory
         run: |
           mkdir /out
-          cp ./out/arch/arm64/boot/Image /out/
+          cp ../*.deb /out/
+          cp ../*.dsc /out/
+          cp ../*.tar.xz /out/
           ls /out
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-kernel
-          path: /out/*
+          path: /out/*.*
           if-no-files-found: error
           retention-days: 1
 
@@ -95,7 +106,7 @@ jobs:
       - name: Create latest release
         uses: softprops/action-gh-release@v2.2.1
         with:
-          files: out/linux-kernel/*
+          files: out/linux-kernel/*.*
           tag_name: latest
           draft: false
           prerelease: false
