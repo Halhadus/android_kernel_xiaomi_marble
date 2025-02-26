@@ -1,5 +1,5 @@
---- arch/arm64/configs/marble_defconfig	2025-02-26 11:53:08.978552754 +0300
-+++ arch/arm64/configs/marble_defconfig	2025-02-26 11:52:13.234552776 +0300
+--- a/arch/arm64/configs/marble_defconfig	2025-02-26 11:53:08.978552754 +0300
++++ b/arch/arm64/configs/marble_defconfig	2025-02-26 11:52:13.234552776 +0300
 @@ -78,7 +78,7 @@
  CONFIG_RANDOMIZE_BASE=y
  # CONFIG_RANDOMIZE_MODULE_REGION_FULL is not set
