@@ -30,8 +30,9 @@ jobs:
       - name: Update & install dependencies
         run: |
           apt update
-          apt install git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev avbtool binutils-aarch64-linux-gnu gcc-4.9-aarch64-linux-android g++-4.9-aarch64-linux-android libgcc-4.9-dev-aarch64-linux-android-cross lz4 linux-packaging-snippets -y
-          wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O /clang.tar.gz
+          apt install aria2 git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev avbtool binutils-aarch64-linux-gnu gcc-4.9-aarch64-linux-android g++-4.9-aarch64-linux-android libgcc-4.9-dev-aarch64-linux-android-cross lz4 linux-packaging-snippets -y
+          #wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O /clang.tar.gz
+          aria2c -x 10 -s 10 -j 10 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -o /clang.tar.gz
           mkdir /clang
           tar -xvf /clang.tar.gz -C /clang
 
