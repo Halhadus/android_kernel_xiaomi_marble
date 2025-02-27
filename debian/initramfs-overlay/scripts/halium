@@ -1,8 +1,16 @@
 # Local filesystem mounting			-*- shell-script -*-
 
-mkdir /dev/bsg
-ln -fs /dev/ufs-bsg0 /dev/bsg/
-/bin/qbootctl -s a &>/dev/kmsg
+if [ -e /dev/ufs-bsg0 ]; then
+        mkdir -p /dev/bsg
+	ln -s /dev/ufs-bsg0 /dev/bsg/ufs-bsg0
+	/bin/qbootctl -s a &>/dev/kmsg
+fi
+
+if [ -e /dev/bsg/ufs-bsg0 ]; then
+        /bin/qbootctl -s a &>/dev/kmsg
+fi
+
+
 if [ -e "/scripts/halium-hooks" ]; then
 	# Hook file found
 	source /scripts/halium-hooks
@@ -168,7 +176,7 @@ identify_android_image() {
 set_halium_version_properties() {
 	halium_system=$1
 	android_data=$2
-
+j
 	channel_ini=$1/etc/system-image/channel.ini
 	def_language=$1/custom/default_language
 
@@ -522,6 +530,9 @@ mount_kernel_modules() {
 
 load_kernel_modules() {
 	mkdir -p /lib/modules
+	if [ ! -e /lib/modules/modules.load ]; then
+                cp -rf /vendor_dlkm/lib/modules/* /lib/modules/
+	fi
 	cd /lib/modules
 	ln -sf /lib/modules "/lib/modules/$(uname -r)"
 
@@ -544,6 +555,16 @@ load_kernel_modules() {
 			modprobe -a "$1"
 		done
 	fi
+
+        if [ -e /dev/ufs-bsg0 ]; then
+                mkdir -p /dev/bsg
+                ln -s /dev/ufs-bsg0 /dev/bsg/ufs-bsg0
+                /bin/qbootctl -s a &>/dev/kmsg
+        fi
+
+        if [ -e /dev/bsg/ufs-bsg0 ]; then
+                /bin/qbootctl -s a &>/dev/kmsg
+        fi
 
 	cd -
 }
