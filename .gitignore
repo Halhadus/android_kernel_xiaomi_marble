@@ -24,7 +24,7 @@
 *.gcno
 *.gz
 *.i
-*.ko
+# *.ko
 *.lex.c
 *.ll
 *.lst
