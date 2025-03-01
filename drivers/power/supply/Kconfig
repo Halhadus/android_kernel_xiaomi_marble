@@ -873,6 +873,10 @@ config ANTI_BURN_DETECT
 	help
 	  Say Y or M here to enable anti burn detect config
 
+config MARBLE_TOGGLE
+	bool
+	depends on QTI_BATTERY_CHARGER
+
 source "drivers/power/supply/qcom/Kconfig"
 
 endif # POWER_SUPPLY
