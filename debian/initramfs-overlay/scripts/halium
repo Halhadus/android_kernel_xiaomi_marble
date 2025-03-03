@@ -813,17 +813,22 @@ mountroot() {
 		tell_kmsg "checking filesystem integrity for the userdata partition"
 		# Mounting and umounting first, let the kernel handle the journal and
 		# orphaned inodes (faster than e2fsck). Then, just run e2fsck forcing -y.
-		# Also check the amount of time used by to check the filesystem
+		# Also check the amount of time used by to check the filesystem.
+		fsck_start=$(date +%s)
+		mount -o errors=remount-ro $path /tmpmnt
+		umount /tmpmnt
+		e2fsck -y $path >/run/e2fsck.out 2>&1
+		fsck_end=$(date +%s)
+		tell_kmsg "checking filesystem for userdata took (including e2fsck) $((fsck_end - fsck_start)) seconds"
+
+		resize_userdata_if_needed ${path}
 
 		tell_kmsg "mounting $path"
 
 		# Mount the data partition to a temporary mount point
 		# FIXME: data=journal used on ext4 as a workaround for bug 1387214
-		#[ `blkid $path -o value -s TYPE` = "ext4" ] && OPTIONS="data=journal,"
-		#mount -o discard,$OPTIONS $path /tmpmnt
-                mkdir -p /metadata
-                mount -o noatime,nosuid,nodev,discard /dev/disk/by-partlabel/metadata /metadata
-                mount -o "noatime,nosuid,nodev,discard,reserve_root=32768,resgid=1065,fsync_mode=nobarrier,inlinecrypt,gc_merge    latemount,wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized+wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,metadata_encryption=aes-256-xts:wrappedkey_v0,quota,reservedsize=128M,sysfs_path=/sys/devices/platform/soc/1d84000.ufshc,checkpoint=fs" $path /tmpmnt
+		[ `blkid $path -o value -s TYPE` = "ext4" ] && OPTIONS="data=journal,"
+		mount -o discard,$OPTIONS $path /tmpmnt
 
 		# Set $_syspart if it is specified as systempart= on the command line
 		# If the .ignore_systempart flag is in the data partition, ignore
