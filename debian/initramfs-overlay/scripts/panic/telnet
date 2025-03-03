@@ -19,8 +19,10 @@ LOCAL_IP=192.168.2.15
 EXPLICIT_BUSYBOX="/bin/busybox"
 TELNET_DEBUG_PORT=23
 
-dd if=/dev/disk/by-partlabel/boot_a of=/dev/disk/by-partlabel/boot_b
+echo "initrd: Copying boot_a to boot_b started" >/dev/kmsg
+dd if=/dev/disk/by-partlabel/boot_a of=/dev/disk/by-partlabel/boot_b &>/dev/kmsg
 sync
+echo "initrd: Copying done." >/dev/kmsg
 
 write() {
 	echo -n "$2" >"$1"
@@ -188,3 +190,5 @@ sync
 
 # Run command injection loop = can be exited via 'continue'
 inject_loop
+
+reboot recovery
