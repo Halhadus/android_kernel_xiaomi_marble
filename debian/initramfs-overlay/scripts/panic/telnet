@@ -19,7 +19,6 @@ LOCAL_IP=192.168.2.15
 EXPLICIT_BUSYBOX="/bin/busybox"
 TELNET_DEBUG_PORT=23
 
-/bin/qbootctl -s a
 dd if=/dev/disk/by-partlabel/boot_a of=/dev/disk/by-partlabel/boot_b
 sync
 

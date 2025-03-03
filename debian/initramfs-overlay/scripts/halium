@@ -1,16 +1,5 @@
 # Local filesystem mounting			-*- shell-script -*-
 
-if [ -e /dev/ufs-bsg0 ]; then
-        mkdir -p /dev/bsg
-	ln -s /dev/ufs-bsg0 /dev/bsg/ufs-bsg0
-	/bin/qbootctl -s a &>/dev/kmsg
-fi
-
-if [ -e /dev/bsg/ufs-bsg0 ]; then
-        /bin/qbootctl -s a &>/dev/kmsg
-fi
-
-
 if [ -e "/scripts/halium-hooks" ]; then
 	# Hook file found
 	source /scripts/halium-hooks
@@ -555,16 +544,6 @@ load_kernel_modules() {
 			modprobe -a "$1"
 		done
 	fi
-
-        if [ -e /dev/ufs-bsg0 ]; then
-                mkdir -p /dev/bsg
-                ln -s /dev/ufs-bsg0 /dev/bsg/ufs-bsg0
-                /bin/qbootctl -s a &>/dev/kmsg
-        fi
-
-        if [ -e /dev/bsg/ufs-bsg0 ]; then
-                /bin/qbootctl -s a &>/dev/kmsg
-        fi
 
 	cd -
 }
