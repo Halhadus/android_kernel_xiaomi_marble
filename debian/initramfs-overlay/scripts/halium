@@ -165,7 +165,7 @@ identify_android_image() {
 set_halium_version_properties() {
 	halium_system=$1
 	android_data=$2
-j
+
 	channel_ini=$1/etc/system-image/channel.ini
 	def_language=$1/custom/default_language
 
