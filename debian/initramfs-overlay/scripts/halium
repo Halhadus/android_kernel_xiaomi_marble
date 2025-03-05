@@ -618,9 +618,9 @@ signal_root_move_done() {
 mount_vendor_partitions() {
 	mkdir /vendor
 	mkdir /vendor_dlkm
-	if [ -e "/data/super.img" ]; then
+	if [ -e "/dev/disk/by-partlabel/super" ]; then
 		tell_kmsg "mapping super partition"
-		losetup -r /dev/loop0 /data/super.img
+		losetup -r /dev/loop0 /dev/disk/by-partlabel/super
 		/minienv/lib/droidian-minienv-linker.so \
 			--inhibit-cache \
 			--library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
