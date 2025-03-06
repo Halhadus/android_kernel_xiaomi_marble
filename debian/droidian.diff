@@ -22,7 +22,7 @@
  CONFIG_STATIC_USERMODEHELPER=y
  CONFIG_STATIC_USERMODEHELPER_PATH=""
 -CONFIG_SECURITY_SELINUX=y
-+# CONFIG_SECURITY_SELINUX=y
++CONFIG_SECURITY_SELINUX=n
  CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
  CONFIG_CRYPTO_CHACHA20POLY1305=y
  CONFIG_CRYPTO_ADIANTUM=y
@@ -54,3 +54,12 @@
 +CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem selinux=0 noirqdebug droidian.lvm.prefer androidboot.selinux=permissive console=tty0"
 +CONFIG_PSTORE_RAM_ANNOTATION_APPEND=y
 +CONFIG_SCSI_UFS_BSG=y
+@@ -145,7 +145,7 @@ $(obj)/config_data.gz: $(obj)/config_data FORCE
+
+ filechk_cat = cat $<
+
+-$(obj)/config_data: arch/arm64/configs/stock_gki_defconfig FORCE
++$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
+        $(call filechk,cat)
+
+ $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
