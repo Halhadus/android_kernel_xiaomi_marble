@@ -644,7 +644,7 @@ mount_vendor_partitions() {
 	    fi
 	done
 
-	vendor_dlkm_images="/dev/mapper/dynpart-vendor_dlkm /dev/mapper/dynpart-vendor_dlkm${1} /dev/mapper/dynpart-vendor_dlkm_a /dev/mapper/dynpart-vendor_dlkm_b"
+	vendor_dlkm_images="/tmpmnt/vendor_dlkm.img /dev/mapper/dynpart-vendor_dlkm /dev/mapper/dynpart-vendor_dlkm${1} /dev/mapper/dynpart-vendor_dlkm_a /dev/mapper/dynpart-vendor_dlkm_b"
 	for image in $vendor_dlkm_images; do
 	    if [ -e $image ]; then
 	        tell_kmsg "mounting vendor_dlkm from $image"
