@@ -66,3 +66,32 @@ unchanged:
         $(call filechk,cat)
 
  $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -882,7 +882,7 @@ static struct binder_node *binder_init_node_ilocked(
+ 	node->min_priority = to_kernel_prio(node->sched_policy, priority);
+ 	node->accept_fds = !!(flags & FLAT_BINDER_FLAG_ACCEPTS_FDS);
+ 	node->inherit_rt = !!(flags & FLAT_BINDER_FLAG_INHERIT_RT);
+-	node->txn_security_ctx = !!(flags & FLAT_BINDER_FLAG_TXN_SECURITY_CTX);
++	node->txn_security_ctx = 0; /*!!(flags & FLAT_BINDER_FLAG_TXN_SECURITY_CTX);*/
+ 	spin_lock_init(&node->lock);
+ 	INIT_LIST_HEAD(&node->work.entry);
+ 	INIT_LIST_HEAD(&node->async_todo);
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -843,9 +843,14 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
+ 	if (hdev->commands[30] & 0x08)
+ 		hci_req_add(req, HCI_OP_GET_MWS_TRANSPORT_CONFIG, 0, NULL);
+ 
++	/* Halium: BT chip returns error for HCI_OP_READ_SYNC_TRAIN_PARAMS,
++	 * which causes the initialization to fail. As this feature is not used
++	 * anywhere, skipping reading the parameters should be safe. */
++#if 0
+ 	/* Check for Synchronization Train support */
+ 	if (lmp_sync_train_capable(hdev))
+ 		hci_req_add(req, HCI_OP_READ_SYNC_TRAIN_PARAMS, 0, NULL);
++#endif
+ 
+ 	/* Enable Secure Connections if supported and configured */
+ 	if (hci_dev_test_flag(hdev, HCI_SSP_ENABLED) &&
+

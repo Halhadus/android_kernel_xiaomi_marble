@@ -28,53 +28,7 @@ write() {
 	echo -n "$2" >"$1"
 }
 
-tell_kmsg() {
-	# Echos a string into /dev/kmsg, ignoring errors.
-	echo "initrd: $1" >/dev/kmsg || true
-}
-
-load_adsp() {
-    # If you're unlucky to be reading this, here is a bit of explanation.
-    # It seems some(?) Qualcomm SoC devices with PMIC Glink require aDSP
-    # firmware loaded for PMIC and Type-C port to work.
-
-    # It becomes tricky if adsp_loader is compiled as module and not
-    # part of vendor_boot ramdisk. As we can not rely on rootfs
-    # in case halium-boot ramdisk panics, attempt to load the module
-    # from the vendor partition.
-
-    # Please note this will only work if the booted kernel module ABI
-    # is compatible with the stock vendor kernel ABI, which can be
-    # tested by booting Android with the compiled kernel.
-
-    # Mount firmware
-    tell_kmsg "Mounting /dev/disk/by-partlabel/modem_a to /firmware"
-    mkdir /firmware
-    mount -o ro /dev/disk/by-partlabel/modem_a /firmware
-    write /sys/module/firmware_class/parameters/path "/firmware/image"
-
-    if [ ! -e /sys/kernel/boot_adsp/boot ]; then
-        # Mount vendor partition
-        tell_kmsg "Mounting /dev/mapper/vendor_a to /vendor"
-        mkdir /vendor
-        mount -o ro /dev/mapper/vendor_dlkm_a /vendor
-
-        # Load adsp_loader_dlkm module from vendor partition
-        rm -f "/lib/modules/$(uname -r)"
-        ln -sf /vendor/lib/modules "/lib/modules/$(uname -r)"
-        # Fix loading dependencies due to /vendor/lib/modules paths in modules.dep
-        ln -sf /vendor "/lib/modules/$(uname -r)/vendor"
-
-        tell_kmsg "Loading adsp_loader_dlkm module"
-        modprobe adsp_loader_dlkm
-        sleep 1
-    fi
-
-    # Load ADSP firmware for PMIC
-    write /sys/kernel/boot_adsp/boot 1
-    # wait /sys/class/power_supply/battery
-    sleep 3
-}
+write /sys/class/udc/a600000.dwc3/device/../mode peripheral
 
 # This sets up the USB with whatever USB_FUNCTIONS are set to via configfs
 usb_setup_configfs() {
@@ -89,7 +43,7 @@ usb_setup_configfs() {
     write $GADGET_DIR/g1/strings/0x409/product      "Failed to boot"
 
     if echo $USB_FUNCTIONS | grep -q "rndis"; then
-        mkdir $GADGET_DIR/g1/functions/ncm.usb0
+        mkdir $GADGET_DIR/g1/functions/rndis.usb0
         mkdir $GADGET_DIR/g1/functions/rndis_bam.rndis
     fi
     echo $USB_FUNCTIONS | grep -q "mass_storage" && mkdir $GADGET_DIR/g1/functions/storage.0
@@ -99,7 +53,7 @@ usb_setup_configfs() {
     write $GADGET_DIR/g1/configs/c.1/strings/0x409/configuration "$USB_FUNCTIONS"
 
     if echo $USB_FUNCTIONS | grep -q "rndis"; then
-        ln -s $GADGET_DIR/g1/functions/ncm.usb0 $GADGET_DIR/g1/configs/c.1
+        ln -s $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/configs/c.1
         ln -s $GADGET_DIR/g1/functions/rndis_bam.rndis $GADGET_DIR/g1/configs/c.1
     fi
     echo $USB_FUNCTIONS | grep -q "mass_storage" && ln -s $GADGET_DIR/g1/functions/storage.0 $GADGET_DIR/g1/configs/c.1
@@ -129,7 +83,9 @@ usb_setup() {
     mkdir /config || true
     mount -t configfs none /config || true
 
-    if [ -d $GADGET_DIR ]; then
+    if [ -d $ANDROID_USB ]; then
+        usb_setup_android_usb $1
+    elif [ -d $GADGET_DIR ]; then
         usb_setup_configfs $1
     fi
 }
@@ -160,8 +116,16 @@ inject_loop() {
 	echo "########################## inject loop done"
 }
 
-# This device requires aDSP firmware loaded for Type-C port to work
-load_adsp
+dropbear_start() {
+	# Required to store hostkeys
+	mkdir -p /etc/dropbear
+
+	# Allow passwordless authentication
+	sed -i 's|:x:|::|' /etc/passwd
+
+	# Finally start dropbear
+	dropbear -R -B -E
+}
 
 usb_setup "halium-initrd telnet 192.168.2.15"
 
@@ -172,15 +136,6 @@ if [ x$USB_IFACE = xnotfound ]; then
 fi
 # Report for the logs
 /sbin/ifconfig -a
-
-mkdir -p /metadata
-mount /dev/disk/by-partlabel/metadata
-
-dmesg > /tmpmnt/halium-boot-dmesg.txt
-dmesg > /root/userdata/halium-boot-dmesg.txt
-dmesg > /metadata/halium-boot-dmesg.txt
-sync
-umount -l /metadata
 
 # Unable to set up USB interface? Reboot.
 if [ x$USB_IFACE = xnotfound ]; then
@@ -208,6 +163,22 @@ echo "########################## starting telnetd"
 # hogging the port
 $EXPLICIT_BUSYBOX telnetd -b ${LOCAL_IP}:${TELNET_DEBUG_PORT} -l /bin/sh
 
+# Start dropbear if we should
+if grep -q halium.recovery /proc/cmdline; then
+	HALIUM_RECOVERY="yes"
+	for x in $(cat /proc/cmdline); do
+		case ${x} in
+		skip_initramfs|androidboot.force_normal_boot=1)
+			HALIUM_RECOVERY="no"
+			;;
+		esac
+	done
+fi
+
+if [ "${HALIUM_RECOVERY}" == "yes" ]; then
+	dropbear_start
+fi
+
 # For some reason this does not work in rootfs
 usb_info "Halium initrd Debug telnet on port $TELNET_DEBUG_PORT on $USB_IFACE $LOCAL_IP - also running udhcpd"
 
@@ -219,3 +190,5 @@ sync
 
 # Run command injection loop = can be exited via 'continue'
 inject_loop
+
+reboot recovery
