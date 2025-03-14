@@ -37,6 +37,7 @@ jobs:
           mkdir /clang
           #tar -xvf /clang.tar.gz -C /clang
           tar -xvf /clang.tar.xz -C /clang
+          mv /clang/*/* /clang/
 
       - name: Apply patches
         run: |
