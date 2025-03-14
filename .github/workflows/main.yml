@@ -35,7 +35,8 @@ jobs:
           #aria2c -x 10 -s 10 -j 10 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -o clang.tar.gz -d /
           aria2c -x 10 -s 10 -j 10 https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.0/LLVM-20.1.0-Linux-X64.tar.xz -o clang.tar.xz -d /
           mkdir /clang
-          tar -xvf /clang.tar.gz -C /clang
+          #tar -xvf /clang.tar.gz -C /clang
+          tar -xvf /clang.tar.xz -C /clang
 
       - name: Apply patches
         run: |
