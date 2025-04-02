@@ -1094,6 +1094,7 @@ static void goodix_parse_finger(struct goodix_touch_data *touch_data,
 	touch_data->touch_num = touch_num;
 }
 
+#ifdef CONFIG_TOUCHSCREEN_GOODIX_BRL_9916_PEN
 static unsigned int goodix_pen_btn_code[] = {BTN_STYLUS, BTN_STYLUS2};
 static void goodix_parse_pen(struct goodix_pen_data *pen_data,
 	u8 *buf, int touch_num)
@@ -1130,6 +1131,7 @@ static void goodix_parse_pen(struct goodix_pen_data *pen_data,
 		pen_data->keys[i].status = TS_TOUCH;
 	}
 }
+#endif
 
 static int goodix_touch_handler(struct goodix_ts_core *cd,
 				struct goodix_ts_event *ts_event,
@@ -1138,14 +1140,16 @@ static int goodix_touch_handler(struct goodix_ts_core *cd,
 	struct goodix_ts_hw_ops *hw_ops = cd->hw_ops;
 	struct goodix_ic_info_misc *misc = &cd->ic_info.misc;
 	struct goodix_touch_data *touch_data = &ts_event->touch_data;
+#ifdef CONFIG_TOUCHSCREEN_GOODIX_BRL_9916_PEN
 	struct goodix_pen_data *pen_data = &ts_event->pen_data;
+	u8 point_type = 0;
+	static u8 pre_pen_num;
+#endif
 	static u8 buffer[IRQ_EVENT_HEAD_LEN +
 			 BYTES_PER_POINT * GOODIX_MAX_TOUCH + 2 + 8];
+	static u8 pre_finger_num;
 	u8 touch_num = 0;
 	int ret = 0;
-	u8 point_type = 0;
-	static u8 pre_finger_num;
-	static u8 pre_pen_num;
 
 	/* clean event buffer */
 	memset(ts_event, 0, sizeof(*ts_event));
@@ -1169,6 +1173,7 @@ static int goodix_touch_handler(struct goodix_ts_core *cd,
 	}
 
 	if (touch_num > 0) {
+#ifdef CONFIG_TOUCHSCREEN_GOODIX_BRL_9916_PEN
 		point_type = buffer[IRQ_EVENT_HEAD_LEN] & 0x0F;
 		if (point_type == POINT_TYPE_STYLUS ||
 				point_type == POINT_TYPE_STYLUS_HOVER) {
@@ -1180,7 +1185,9 @@ static int goodix_touch_handler(struct goodix_ts_core *cd,
 						&buffer[IRQ_EVENT_HEAD_LEN]);
 				return -EINVAL;
 			}
-		} else {
+		} else
+#endif
+		{
 			ret = checksum_cmp(&buffer[IRQ_EVENT_HEAD_LEN],
 					touch_num * BYTES_PER_POINT + 2, CHECKSUM_MODE_U8_LE);
 			if (ret) {
@@ -1191,6 +1198,8 @@ static int goodix_touch_handler(struct goodix_ts_core *cd,
 			}
 		}
 	}
+
+#ifdef CONFIG_TOUCHSCREEN_GOODIX_BRL_9916_PEN
 	if (touch_num > 0 && (point_type == POINT_TYPE_STYLUS
 				|| point_type == POINT_TYPE_STYLUS_HOVER)) {
 		/* stylus info */
@@ -1216,6 +1225,12 @@ static int goodix_touch_handler(struct goodix_ts_core *cd,
 			pre_finger_num = touch_num;
 		}
 	}
+#else
+	/* finger info */
+	ts_event->event_type = EVENT_TOUCH;
+	goodix_parse_finger(touch_data, buffer, touch_num);
+	pre_finger_num = touch_num;
+#endif
 
 	/* process custom info */
 	if (buffer[3] & 0x01)
