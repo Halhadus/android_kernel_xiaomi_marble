@@ -41,6 +41,13 @@ jobs:
 
       - name: Apply patches
         run: |
+          mkdir patches
+          curl https://github.com/Pzqqt/android_kernel_xiaomi_marble/compare/melt-rebase...melt-rebase-4LazyGoogle.diff -o patches/4LazyGoogle.diff || exit
+          curl https://github.com/Pzqqt/android_kernel_xiaomi_marble/compare/melt-rebase-4LazyGoogle...melt-rebase-hyperos.diff -o patches/hyperos.diff || exit
+          git apply --check --ignore-space-change --ignore-whitespace < ./patches/4LazyGoogle.diff || exit
+          git apply --ignore-space-change --ignore-whitespace < ./patches/4LazyGoogle.diff || exit
+          git apply --check --ignore-space-change --ignore-whitespace < ./patches/hyperos.diff || exit
+          git apply --ignore-space-change --ignore-whitespace < ./patches/hyperos.diff || exit
           git apply --check --ignore-space-change --ignore-whitespace < ./lxcbuild/lxc_support.diff
           git apply --ignore-space-change --ignore-whitespace < ./lxcbuild/lxc_support.diff
           git apply --check --ignore-space-change --ignore-whitespace < ./debian/droidian.diff
