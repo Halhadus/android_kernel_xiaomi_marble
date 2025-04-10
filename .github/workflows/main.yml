@@ -33,7 +33,7 @@ jobs:
           apt install curl aria2 git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev binutils-aarch64-linux-gnu lz4 -y
           #wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -O /clang.tar.gz
           #aria2c -x 10 -s 10 -j 10 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz -o clang.tar.gz -d /
-          aria2c -x 10 -s 10 -j 10 https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.0/LLVM-20.1.0-Linux-X64.tar.xz -o clang.tar.xz -d /
+          aria2c -x 10 -s 10 -j 10 https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.2/LLVM-20.1.2-Linux-X64.tar.xz -o clang.tar.xz -d /
           mkdir /clang
           #tar -xvf /clang.tar.gz -C /clang
           tar -xvf /clang.tar.xz -C /clang
