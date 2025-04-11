@@ -38,6 +38,7 @@ jobs:
           #tar -xvf /clang.tar.gz -C /clang
           tar -xvf /clang.tar.xz -C /clang
           mv /clang/*/* /clang/
+          rm -rf /clang.tar.xz
 
       - name: Apply patches
         run: |
