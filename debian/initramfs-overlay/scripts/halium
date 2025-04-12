@@ -626,17 +626,9 @@ mount_vendor_partitions() {
                         --library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
                         /usr/sbin/dmsetup create --concise "$(droidian_minienv /usr/sbin/parse-android-dynparts /dev/loop0)"
                 tell_kmsg $(ls /dev/mapper/)
-	elif [ -e "/dev/disk/by-partlabel/super" ]; then
-		tell_kmsg "mapping super partition"
-		losetup -r /dev/loop0 /dev/disk/by-partlabel/super
-		/minienv/lib/droidian-minienv-linker.so \
-			--inhibit-cache \
-			--library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
-			/usr/sbin/dmsetup create --concise "$(droidian_minienv /usr/sbin/parse-android-dynparts /dev/loop0)"
-                tell_kmsg $(ls /dev/mapper/)
 	fi
 
-	vendor_images="/tmpmnt/vendor.img /dev/disk/by-partlabel/vendor${1} /dev/disk/by-partlabel/vendor_a /dev/disk/by-partlabel/vendor_b /dev/mapper/dynpart-vendor /dev/mapper/dynpart-vendor${1} /dev/mapper/dynpart-vendor_a /dev/mapper/dynpart-vendor_b"
+	vendor_images="/tmpmnt/vendor.img"
 	for image in $vendor_images; do
 	    if [ -e $image ]; then
 	        tell_kmsg "mounting vendor from $image"
@@ -652,7 +644,7 @@ mount_vendor_partitions() {
 	    fi
 	done
 
-	vendor_dlkm_images="/dev/mapper/dynpart-vendor_dlkm /dev/mapper/dynpart-vendor_dlkm${1} /dev/mapper/dynpart-vendor_dlkm_a /dev/mapper/dynpart-vendor_dlkm_b"
+	vendor_dlkm_images="/tmpmnt/vendor_dlkm.img"
 	for image in $vendor_dlkm_images; do
 	    if [ -e $image ]; then
 	        tell_kmsg "mounting vendor_dlkm from $image"
