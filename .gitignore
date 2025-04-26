@@ -35,7 +35,7 @@
 *.mod.c
 *.o
 *.o.*
-*.patch
+#*.patch
 *.s
 *.so
 *.so.dbg
@@ -107,10 +107,10 @@ modules.order
 /arch/*/include/generated/
 
 # stgit generated dirs
-patches-*
+#patches-*
 
 # quilt's files
-patches
+#patches
 series
 
 # cscope files
