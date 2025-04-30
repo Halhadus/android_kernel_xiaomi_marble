@@ -21,7 +21,7 @@ extern struct msm_vidc_core *g_core;
 #define MSM_VIDC_MIN_STATS_DELAY_MS     200
 #define MSM_VIDC_MAX_STATS_DELAY_MS     10000
 
-unsigned int msm_vidc_debug = VIDC_ERR | VIDC_PRINTK | FW_ERROR | FW_FATAL | FW_PRINTK;
+unsigned int msm_vidc_debug = VIDC_ERR | FW_ERROR | FW_FATAL;
 
 static int debug_level_set(const char *val,
 	const struct kernel_param *kp)
