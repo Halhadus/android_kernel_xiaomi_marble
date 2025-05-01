@@ -41,7 +41,7 @@ jobs:
       - name: Build kernel
         run: |
           export PATH=/opt/android/prebuilts/python/2.7.5/bin:$PATH
-          ./build.sh -- Image
+          ./build_lxc.sh -- Image
           ls /out
 
       - name: Upload artifacts
