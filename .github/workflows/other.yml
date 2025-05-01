@@ -34,6 +34,11 @@ jobs:
           mkdir -p /android-kernel/
           git clone https://android.googlesource.com/kernel/build -b android-12.1.0_r0.40 /android-kernel/build
 
+      - name: Patch kernel
+        run: |
+          curl https://github.com/Halhadus/android_kernel_xiaomi_marble/compare/melt-rebase...Pzqqt:android_kernel_xiaomi_marble:melt-rebase-hyperos.patch | git apply --check --ignore-space-change --ignore-whitespace
+          curl https://github.com/Halhadus/android_kernel_xiaomi_marble/compare/melt-rebase...Pzqqt:android_kernel_xiaomi_marble:melt-rebase-hyperos.patch | git apply --ignore-space-change --ignore-whitespace
+
       - name: Build other
         run: |
           export PATH=/opt/android/prebuilts/python/2.7.5/bin:$PATH
