@@ -30,7 +30,7 @@ jobs:
       - name: Update & install dependencies
         run: |
           apt update
-          apt install curl git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev binutils-aarch64-linux-gnu lz4 clang-android-12.0-r416183b -y
+          apt install zip curl git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev binutils-aarch64-linux-gnu lz4 clang-android-12.0-r416183b -y
           mkdir -p /android-kernel/
           git clone https://android.googlesource.com/kernel/build -b android-12.1.0_r0.40 /android-kernel/build
 
