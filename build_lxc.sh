@@ -9,7 +9,7 @@ cd ${0%/*}
 
 DEFCONFIG=marble_lxc_defconfig
 IMAGE=./out/arch/arm64/boot/Image
-OUTPUT_DIR=/out
+OUTPUT_DIR=/outmelt
 GKI_BUILD_TOOLS=/android-kernel/build
 
 KMI_STRICT_MODE=true
@@ -72,7 +72,7 @@ make $make_flags KCFLAGS="$make_kcflags" KBUILD_LDFLAGS="$make_kbuild_ldflags" "
 if [ "$(./scripts/config --file ./out/.config -s CFI_FORCE_SKIP_CHECK)" == "y" ]; then
 	echo -e "${yellow}Warning: CFI checks is disabled! $white"
 fi
-# Slim llvm dose not support polly
+
 $USE_SLIM_LLVM && ./scripts/config --file ./out/.config -d LLVM_POLLY
 
 if ${KMI_STRICT_MODE}; then

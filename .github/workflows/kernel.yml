@@ -33,7 +33,7 @@ jobs:
           apt install curl aria2 git fakeroot build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison build-essential dpkg-dev findutils android-platform-prebuilts-python-linux-x86-2.7.5 bc rsync kmod cpio bison flex libssl-dev binutils-aarch64-linux-gnu lz4 -y
           aria2c -x 10 -s 10 -j 10 https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.3/LLVM-20.1.3-Linux-X64.tar.xz -o clang.tar.xz -d /
           mkdir /clang
-          tar -xvf /clang.tar.xz -C /clang
+          tar -xf /clang.tar.xz -C /clang
           mv /clang/*/* /clang/
           mkdir -p /android-kernel/
           git clone https://android.googlesource.com/kernel/build -b android-12.1.0_r0.40 /android-kernel/build
@@ -42,12 +42,54 @@ jobs:
         run: |
           export PATH=/opt/android/prebuilts/python/2.7.5/bin:$PATH
           ./build_lxc.sh -- Image
-          ls /out
+          cd /outmelt
+          zip -r /out/melt-kernel.zip .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-kernel
-          path: /out/*
+          path: /out/melt-kernel.zip
           if-no-files-found: error
           retention-days: 1
+
+  prepare:
+    runs-on: ubuntu-latest
+    name: Create GitHub release
+    needs: build
+
+    steps:
+      - name: Delete old latest-kernel release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          delete_release: true
+          tag_name: latest-kernel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag latest-kernel
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: latest-kernel
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: prepare
+
+    name: Publish linux-kernel
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: out
+
+      - name: Create latest-kernel release
+        uses: softprops/action-gh-release@v2.2.1
+        with:
+          files: out/*
+          tag_name: latest-kernel
+          draft: false
+          prerelease: false
+

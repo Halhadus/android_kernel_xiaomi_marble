@@ -1,0 +1,6 @@
+On every update check them:
+build{,_lxc}.sh
+arch/arm64/configs/marble{,_lxc}_defconfig
+.github/workflows/{kernel,other}.yml
+
+Modify manually everything.
