@@ -55,7 +55,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-kernel
+          name: kernel-other
           path: /out/melt-other.zip
           if-no-files-found: error
           retention-days: 1
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: prepare
 
-    name: Publish linux-kernel
+    name: Publish kernel-other
 
     steps:
       - name: Download artifacts
@@ -95,7 +95,7 @@ jobs:
       - name: Create latest-other release
         uses: softprops/action-gh-release@v2.2.1
         with:
-          files: out/*
+          files: out/kernel-other/*
           tag_name: latest-other
           draft: false
           prerelease: false
