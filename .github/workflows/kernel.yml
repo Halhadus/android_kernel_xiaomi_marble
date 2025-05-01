@@ -48,7 +48,13 @@ jobs:
           export PATH=/opt/android/prebuilts/python/2.7.5/bin:$PATH
           ./build_lxc.sh -- Image
           cd /outmelt
-          zip -r /out/melt-kernel.zip .
+          zip -r melt-kernel.zip .
+
+      - name: Move package to out directory
+        run: |
+          mkdir /out
+          cp /outmelt/melt-kernel.zip /out/
+          ls /out
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
