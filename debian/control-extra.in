@@ -1,0 +1,34 @@
+
+Package: linux-bootimage-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@-gzip
+Architecture: @DEB_BUILD_FOR@
+Pre-Depends: flash-bootimage (>= 4)
+Depends: ${misc:Depends},
+         linux-image-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@ (= ${binary:Version})
+Description: Linux kernel for @DEVICE_FULL_NAME@ - Android Boot Image (gzip variant)
+ This package contains the Linux kernel for the @DEVICE_FULL_NAME@ device.
+ .
+ Note: This package ships an Android Boot Image bundled with Halium's
+ initramfs.
+
+Package: linux-bootimage-@DEVICE_VENDOR@-@DEVICE_MODEL@-gzip
+Architecture: @DEB_BUILD_FOR@
+Depends: linux-bootimage-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@-gzip (= ${binary:Version})
+Description: Linux kernel for @DEVICE_FULL_NAME@ - Android Boot Image  (gzip variant, latest)
+ This package depends to the latest kernel bootimage available for the @DEVICE_FULL_NAME@.
+
+Package: linux-bootimage-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@-lz4
+Architecture: @DEB_BUILD_FOR@
+Pre-Depends: flash-bootimage (>= 4)
+Depends: ${misc:Depends},
+         linux-image-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@ (= ${binary:Version})
+Description: Linux kernel for @DEVICE_FULL_NAME@ - Android Boot Image (lz4 variant)
+ This package contains the Linux kernel for the @DEVICE_FULL_NAME@ device.
+ .
+ Note: This package ships an Android Boot Image bundled with Halium's
+ initramfs.
+
+Package: linux-bootimage-@DEVICE_VENDOR@-@DEVICE_MODEL@-lz4
+Architecture: @DEB_BUILD_FOR@
+Depends: linux-bootimage-@KERNEL_BASE_VERSION@-@DEVICE_VENDOR@-@DEVICE_MODEL@-lz4 (= ${binary:Version})
+Description: Linux kernel for @DEVICE_FULL_NAME@ - Android Boot Image  (lz4 variant, latest)
+ This package depends to the latest kernel bootimage available for the @DEVICE_FULL_NAME@.

@@ -1,0 +1,97 @@
+--- a/arch/arm64/configs/marble_defconfig	2025-03-06 06:42:58.976513510 +0300
++++ b/arch/arm64/configs/marble_defconfig	2025-03-06 06:43:49.424529028 +0300
+@@ -78,7 +78,7 @@
+ CONFIG_RANDOMIZE_BASE=y
+ # CONFIG_RANDOMIZE_MODULE_REGION_FULL is not set
+ # CONFIG_STACKPROTECTOR_PER_TASK is not set
+-CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem noirqdebug"
++# CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem noirqdebug"
+ CONFIG_CMDLINE_EXTEND=y
+ # CONFIG_DMI is not set
+ CONFIG_PM_WAKELOCKS=y
+@@ -407,7 +407,7 @@
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_INPUT_MISC=y
+ CONFIG_INPUT_UINPUT=y
+-# CONFIG_VT is not set
++CONFIG_VT=y
+ # CONFIG_LEGACY_PTYS is not set
+ CONFIG_SERIAL_8250=y
+ # CONFIG_SERIAL_8250_DEPRECATED_OPTIONS is not set
+@@ -683,6 +683,6 @@
+ CONFIG_STATIC_USERMODEHELPER=y
+ CONFIG_STATIC_USERMODEHELPER_PATH=""
+-CONFIG_SECURITY_SELINUX=y
++CONFIG_SECURITY_SELINUX=n
+ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
+ CONFIG_CRYPTO_CHACHA20POLY1305=y
+ CONFIG_CRYPTO_ADIANTUM=y
+@@ -1139,3 +1140,27 @@
+ 
+ CONFIG_MACH_XIAOMI=y
+ CONFIG_MACH_XIAOMI_MARBLE=y
++
++# Droidian
++CONFIG_EPOLL=y
++CONFIG_PROC_FS=y
++CONFIG_INOTIFY_USER=y
++CONFIG_RD_GZIP=y
++CONFIG_TIMERFD=y
++CONFIG_SIGNALFD=y
++CONFIG_QUOTACTL=y
++CONFIG_SYSFS=y
++CONFIG_NETFILTER_XT_CONNMARK=y
++CONFIG_IPC_NS=y
++CONFIG_MEMCG_KMEM=y
++CONFIG_LTO_CLANG_FULL=n
++CONFIG_DEVPTS_MULTIPLE_INSTANCES=y
++CONFIG_ARM64_BTI=n
++CONFIG_SQUASHFS=y
++CONFIG_SQUASHFS_FILE_DIRECT=y
++CONFIG_SQUASHFS_DECOMP_MULTI_PERCPU=y
++CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder,anbox-binder,anbox-hwbinder,anbox-vndbinder"
++CONFIG_INIT_STACK_ALL_ZERO=y
++CONFIG_CMDLINE="stack_depot_disable=on kasan.stacktrace=off kvm-arm.mode=protected cgroup_disable=pressure cgroup.memory=nokmem selinux=0 noirqdebug droidian.lvm.prefer androidboot.selinux=permissive console=tty0"
++CONFIG_PSTORE_RAM_ANNOTATION_APPEND=y
++CONFIG_SCSI_UFS_BSG=y
+unchanged:
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -145,7 +145,7 @@ $(obj)/config_data.gz: $(obj)/config_data FORCE
+
+ filechk_cat = cat $<
+
+-$(obj)/config_data: arch/arm64/configs/stock_gki_defconfig FORCE
++$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
+        $(call filechk,cat)
+
+ $(obj)/kheaders.o: $(obj)/kheaders_data.tar.xz
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -882,7 +882,7 @@ static struct binder_node *binder_init_node_ilocked(
+ 	node->min_priority = to_kernel_prio(node->sched_policy, priority);
+ 	node->accept_fds = !!(flags & FLAT_BINDER_FLAG_ACCEPTS_FDS);
+ 	node->inherit_rt = !!(flags & FLAT_BINDER_FLAG_INHERIT_RT);
+-	node->txn_security_ctx = !!(flags & FLAT_BINDER_FLAG_TXN_SECURITY_CTX);
++	node->txn_security_ctx = 0; /*!!(flags & FLAT_BINDER_FLAG_TXN_SECURITY_CTX);*/
+ 	spin_lock_init(&node->lock);
+ 	INIT_LIST_HEAD(&node->work.entry);
+ 	INIT_LIST_HEAD(&node->async_todo);
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -843,9 +843,14 @@ static int hci_init4_req(struct hci_request *req, unsigned long opt)
+ 	if (hdev->commands[30] & 0x08)
+ 		hci_req_add(req, HCI_OP_GET_MWS_TRANSPORT_CONFIG, 0, NULL);
+ 
++	/* Halium: BT chip returns error for HCI_OP_READ_SYNC_TRAIN_PARAMS,
++	 * which causes the initialization to fail. As this feature is not used
++	 * anywhere, skipping reading the parameters should be safe. */
++#if 0
+ 	/* Check for Synchronization Train support */
+ 	if (lmp_sync_train_capable(hdev))
+ 		hci_req_add(req, HCI_OP_READ_SYNC_TRAIN_PARAMS, 0, NULL);
++#endif
+ 
+ 	/* Enable Secure Connections if supported and configured */
+ 	if (hci_dev_test_flag(hdev, HCI_SSP_ENABLED) &&
+
