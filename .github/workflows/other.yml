@@ -38,6 +38,8 @@ jobs:
         run: |
           curl https://github.com/Halhadus/android_kernel_xiaomi_marble/compare/melt-rebase...Pzqqt:android_kernel_xiaomi_marble:melt-rebase-hyperos.patch | git apply --check --ignore-space-change --ignore-whitespace
           curl https://github.com/Halhadus/android_kernel_xiaomi_marble/compare/melt-rebase...Pzqqt:android_kernel_xiaomi_marble:melt-rebase-hyperos.patch | git apply --ignore-space-change --ignore-whitespace
+          git apply --check --ignore-space-change --ignore-whitespace <./lxcbuild/lxc_support.diff
+          git apply --ignore-space-change --ignore-whitespace <./lxcbuild/lxc_support.diff
 
       - name: Build other
         run: |

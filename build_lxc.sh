@@ -7,7 +7,7 @@ gre='\e[0;32m'
 
 cd ${0%/*}
 
-DEFCONFIG=marble_lxc_defconfig
+DEFCONFIG=marble_defconfig
 IMAGE=./out/arch/arm64/boot/Image
 OUTPUT_DIR=/outmelt
 GKI_BUILD_TOOLS=/android-kernel/build
