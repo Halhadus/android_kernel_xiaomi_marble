@@ -1,33 +1,46 @@
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
 +++ b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
-@@ -1738,6 +1738,12 @@
- 	ret = goodix_update_finish(fwu_ctrl);
- 	if (!ret)
+@@ -1743,6 +1743,13 @@
+ 	if (!ret) {
  		ts_info("Firmware update successfully");
-+		/* Reset panel after successful update */
-+		if (fwu_ctrl->core_data->hw_ops->reset) {
-+			ts_info("Resetting panel after firmware update");
-+			fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data,
+ 
++		/* Panel reset after successful update */
++		if (fwu_ctrl->core_data && fwu_ctrl->core_data->hw_ops->reset) {
++			ts_info("Performing post-update reset");
++			fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data, 
 +				GOODIX_NORMAL_RESET_DELAY_MS);
 +		}
- 	else
++
+ 		goodix_ts_blocking_notify(NOTIFY_FWUPDATE_SUCCESS, NULL);
+ 	} else {
  		ts_err("Firmware update failed, ret:%d", ret);
- 
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
 +++ b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
-@@ -2218,6 +2218,13 @@
+@@ -2218,6 +2218,15 @@
   */
  static int goodix_ts_resume(struct goodix_ts_core *core_data)
  {
-+	/* Check if firmware needs update on screen wake */
++	/* Check for pending firmware update on wake */
 +	if (core_data->fw_need_update) {
-+		ts_info("Firmware update required, triggering update");
-+		goodix_do_fw_update(NULL, UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK);
-+		core_data->fw_need_update = false;
++		ts_info("Initiating firmware update on resume");
++		if (goodix_do_fw_update(NULL, 
++			UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK) == 0) {
++			core_data->fw_need_update = false;
++		}
 +	}
 +
  	struct goodix_ext_module *ext_module, *next;
  	struct goodix_ts_hw_ops *hw_ops = core_data->hw_ops;
  	int ret;
+diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
+--- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
++++ b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
+@@ -453,6 +453,7 @@
+ 	struct completion pm_resume_completion;
+ 	void *notifier_cookie;
++	bool fw_need_update; /* Flag for pending firmware update */
+ };
+ 
+ /* external module structures */
