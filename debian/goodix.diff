@@ -1,31 +1,40 @@
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
 +++ b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.h
-@@ -472,6 +472,7 @@
+@@ -470,6 +470,7 @@
+ 	int report_rate;
+ 	bool tp_pm_suspend;
  	struct completion pm_resume_completion;
++	bool fw_need_update; /* Bekleyen firmware güncellemesi için flag */
  	void *notifier_cookie;
-+	bool fw_need_update; /* Flag for pending firmware update */
  };
  
- /* external module structures */
-
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
 +++ b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
-@@ -1743,6 +1743,13 @@
- 	ret = goodix_update_finish(fwu_ctrl);
- 	if (!ret) {
- 		ts_info("Firmware update successfully");
+@@ -1736,6 +1736,7 @@
+ 	/* clean */
+ 	if (fwu_ctrl->mode & UPDATE_MODE_SRC_HEAD) {
+ 		kfree(fwu_ctrl->fw_data.firmware);
++		fwu_ctrl->core_data->fw_need_update = true;
+ 		fwu_ctrl->fw_data.firmware = NULL;
+ 		temp_firmware = NULL;
+ 	} else if (fwu_ctrl->mode & UPDATE_MODE_SRC_REQUEST) {
+@@ -1743,6 +1744,14 @@
+ 	}
+ out:
+ 	fwu_ctrl->mode = UPDATE_MODE_DEFAULT;
 +
-+		/* Reset panel after successful update */
-+		if (fwu_ctrl->core_data && fwu_ctrl->core_data->hw_ops->reset) {
-+			ts_info("Performing post-update reset");
-+			fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data, 
-+				GOODIX_NORMAL_RESET_DELAY_MS);
-+		}
- 		goodix_ts_blocking_notify(NOTIFY_FWUPDATE_SUCCESS, NULL);
- 	} else {
- 		ts_err("Firmware update failed, ret:%d", ret);
++	/* Başarılıysa paneli resetle */
++	if (!ret && fwu_ctrl->core_data && fwu_ctrl->core_data->hw_ops->reset) {
++		ts_info("Firmware sonrasi panel resetleniyor");
++		fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data,
++			GOODIX_NORMAL_RESET_DELAY_MS);
++	}
++
+ 	mutex_unlock(&fwu_ctrl->mutex);
+ 
+ 	if (ret) {
 
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
@@ -34,9 +43,9 @@ diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c b/drivers/i
   */
  static int goodix_ts_resume(struct goodix_ts_core *core_data)
  {
-+	/* Check for pending firmware update on wake */
++	/* Uyanista firmware guncelleme kontrolu */
 +	if (core_data->fw_need_update) {
-+		ts_info("Initiating firmware update on resume");
++		ts_info("Uyanista firmware guncellemesi baslatiliyor");
 +		if (goodix_do_fw_update(NULL, 
 +			UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK) == 0) {
 +			core_data->fw_need_update = false;
