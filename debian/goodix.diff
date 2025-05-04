@@ -1,0 +1,33 @@
+diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
+--- a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
++++ b/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c
+@@ -1738,6 +1738,12 @@
+ 	ret = goodix_update_finish(fwu_ctrl);
+ 	if (!ret)
+ 		ts_info("Firmware update successfully");
++		/* Reset panel after successful update */
++		if (fwu_ctrl->core_data->hw_ops->reset) {
++			ts_info("Resetting panel after firmware update");
++			fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data,
++				GOODIX_NORMAL_RESET_DELAY_MS);
++		}
+ 	else
+ 		ts_err("Firmware update failed, ret:%d", ret);
+ 
+diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
+--- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
++++ b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
+@@ -2218,6 +2218,13 @@
+  */
+ static int goodix_ts_resume(struct goodix_ts_core *core_data)
+ {
++	/* Check if firmware needs update on screen wake */
++	if (core_data->fw_need_update) {
++		ts_info("Firmware update required, triggering update");
++		goodix_do_fw_update(NULL, UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK);
++		core_data->fw_need_update = false;
++	}
++
+ 	struct goodix_ext_module *ext_module, *next;
+ 	struct goodix_ts_hw_ops *hw_ops = core_data->hw_ops;
+ 	int ret;
