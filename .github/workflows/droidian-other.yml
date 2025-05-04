@@ -43,8 +43,7 @@ jobs:
           cp ./lxcbuild/stock_gki_defconfig arch/arm64/configs/
           git apply --check --ignore-space-change --ignore-whitespace <./debian/droidian.diff
           git apply --ignore-space-change --ignore-whitespace <./debian/droidian.diff
-          git apply --check --ignore-space-change --ignore-whitespace <./debian/goodix.diff
-          git apply --ignore-space-change --ignore-whitespace <./debian/goodix.diff
+          patch -p1 <./debian/goodix.diff
 
       - name: Build other for Droidian
         run: |
