@@ -154,6 +154,14 @@ unchanged:
  CONFIG_HVC_DCC=y
  CONFIG_HVC_DCC_SERIALIZE_SMP=y
  CONFIG_SERIAL_DEV_BUS=y
+@@ -593,6 +619,7 @@
+ CONFIG_TMPFS=y
+ CONFIG_TMPFS_XATTR=y
+ # CONFIG_EFIVAR_FS is not set
++CONFIG_BTRFS=y
+ CONFIG_PSTORE=y
+ CONFIG_PSTORE_CONSOLE=y
+ CONFIG_PSTORE_PMSG=y
 unchanged:
 --- a/fs/overlayfs/util.c
 +++ b/fs/overlayfs/util.c
