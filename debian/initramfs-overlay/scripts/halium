@@ -671,7 +671,7 @@ mountroot() {
 	exec &>/dev/kmsg
 
 	load_kernel_modules
-	echo 1 > /sys/kernel/boot_adsp/boot
+	#echo 1 > /sys/kernel/boot_adsp/boot
 	tell_kmsg "Finished loading kernel modules"
 	sleep 1
 
