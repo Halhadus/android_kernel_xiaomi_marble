@@ -39,19 +39,18 @@ diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c b/driv
 diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
 --- a/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
 +++ b/drivers/input/touchscreen/goodix_9916r/goodix_ts_core.c
-@@ -2218,6 +2218,15 @@
-  */
- static int goodix_ts_resume(struct goodix_ts_core *core_data)
- {
-+	/* Uyanista firmware guncelleme kontrolu */
-+	if (core_data->fw_need_update) {
-+		ts_info("Uyanista firmware guncellemesi baslatiliyor");
-+		if (goodix_do_fw_update(NULL, 
-+			UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK) == 0) {
-+			core_data->fw_need_update = false;
-+		}
-+	}
+@@ -2222,6 +2222,14 @@
+        struct goodix_ts_hw_ops *hw_ops = core_data->hw_ops;
+        int ret;
+
++       if (core_data->fw_need_update) {
++               ts_info("AAAAAAA");
++               if (goodix_do_fw_update(NULL,
++                       UPDATE_MODE_FORCE | UPDATE_MODE_BLOCK) == 0) {
++                       core_data->fw_need_update = false;
++               }
++       }
 +
- 	struct goodix_ext_module *ext_module, *next;
- 	struct goodix_ts_hw_ops *hw_ops = core_data->hw_ops;
- 	int ret;
+        if (core_data->init_stage < CORE_INIT_STAGE2 ||
+                        !atomic_read(&core_data->suspended))
+                return 0;
