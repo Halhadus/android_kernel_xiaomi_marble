@@ -26,7 +26,7 @@ diff --git a/drivers/input/touchscreen/goodix_9916r/goodix_brl_fwupdate.c b/driv
  	fwu_ctrl->mode = UPDATE_MODE_DEFAULT;
 +
 +	/* Başarılıysa paneli resetle */
-+	if (!ret && fwu_ctrl->core_data && fwu_ctrl->core_data->hw_ops->reset) {
++	if (ret == 0 && fwu_ctrl->core_data && fwu_ctrl->core_data->hw_ops->reset) {
 +		ts_info("Firmware sonrasi panel resetleniyor");
 +		fwu_ctrl->core_data->hw_ops->reset(fwu_ctrl->core_data,
 +			GOODIX_NORMAL_RESET_DELAY_MS);
