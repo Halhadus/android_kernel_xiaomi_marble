@@ -622,13 +622,6 @@ mount_vendor_partitions() {
 			--inhibit-cache \
 			--library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
 			/usr/sbin/dmsetup create --concise "$(droidian_minienv /usr/sbin/parse-android-dynparts /dev/loop0)"
-        elif [ -e "/dev/disk/by-partlabel/super" ]; then
-		tell_kmsg "mapping super partition"
-		losetup -r /dev/loop0 /dev/disk/by-partlabel/super
-		/minienv/lib/droidian-minienv-linker.so \
-			--inhibit-cache \
-			--library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
-			/usr/sbin/dmsetup create --concise "$(droidian_minienv /usr/sbin/parse-android-dynparts /dev/loop0)"
 	fi
 
 	vendor_images="/tmpmnt/vendor.img /dev/disk/by-partlabel/vendor${1} /dev/disk/by-partlabel/vendor_a /dev/disk/by-partlabel/vendor_b /dev/mapper/dynpart-vendor /dev/mapper/dynpart-vendor${1} /dev/mapper/dynpart-vendor_a /dev/mapper/dynpart-vendor_b"
