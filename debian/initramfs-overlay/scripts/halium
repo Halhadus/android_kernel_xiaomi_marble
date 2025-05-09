@@ -615,7 +615,14 @@ signal_root_move_done() {
 mount_vendor_partitions() {
 	mkdir /vendor
 	mkdir /vendor_dlkm
-	if [ -e "/dev/disk/by-partlabel/super" ]; then
+	if [ -e "/tmpmnt/super.img" ]; then
+		tell_kmsg "mapping super partition"
+		losetup -r /dev/loop0 /tmpmnt/super.img
+		/minienv/lib/droidian-minienv-linker.so \
+			--inhibit-cache \
+			--library-path '/minienv/usr/${LIB}:/minienv/${LIB}:/usr/${LIB}:/${LIB}' \
+			/usr/sbin/dmsetup create --concise "$(droidian_minienv /usr/sbin/parse-android-dynparts /dev/loop0)"
+        elif [ -e "/dev/disk/by-partlabel/super" ]; then
 		tell_kmsg "mapping super partition"
 		losetup -r /dev/loop0 /dev/disk/by-partlabel/super
 		/minienv/lib/droidian-minienv-linker.so \
@@ -640,7 +647,7 @@ mount_vendor_partitions() {
 	    fi
 	done
 
-	vendor_dlkm_images="/tmpmnt/vendor_dlkm.img"
+	vendor_dlkm_images="/tmpmnt/vendor_dlkm.img /dev/mapper/dynpart-vendor_dlkm /dev/mapper/dynpart-vendor_dlkm${1} /dev/mapper/dynpart-vendor_dlkm_a /dev/mapper/dynpart-vendor_dlkm_b"
 	for image in $vendor_dlkm_images; do
 	    if [ -e $image ]; then
 	        tell_kmsg "mounting vendor_dlkm from $image"
